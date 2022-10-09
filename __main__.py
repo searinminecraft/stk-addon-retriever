@@ -22,7 +22,20 @@ def parse_addons():
     for item in root.findall('kart'):
         value = item.get('file')
         name = item.get('name')
-        print(value + " " + name)
+        revision = item.get('revision')
+        print("Kart: " + name + " URL: " + value + " Revision: " + revision)
+    
+    for item in root.findall('track'):
+        value = item.get('file')
+        name = item.get('name')
+        revision = item.get('revision')
+        print("Track: " + name + " URL: " + value + " Revision: " + revision)
+
+    for item in root.findall('arena'):
+        value = item.get('file')
+        name = item.get('name')
+        revision = item.get('revision')
+        print("Arena: " + name + " URL: " + value + " Revision: " + revision)
 
 def main():
     get_addons()
