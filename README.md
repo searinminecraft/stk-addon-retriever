@@ -17,4 +17,4 @@ python __main__.py
 
 ## FAQ
 1. Is this a violation the SuperTuxKart terms of service?
-	* As long as you don't do something blatantly stupid (such as ddosing the STKAddons server, you'll be fine.
+	* As long as you don't do something blatantly stupid (such as DDoSing the STKAddons server), you'll be fine.
