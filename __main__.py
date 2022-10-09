@@ -8,7 +8,7 @@ def get_addons():
     try:
         content = requests.get('https://online.supertuxkart.net/downloads/xml/online_assets.xml')
     except:
-        print("Failed to download addons!!")
+        print("Failed to download addon data! Quitting...")
         sys.exit(1)
 
     with open('addons.xml', 'wb') as f:
@@ -23,19 +23,19 @@ def parse_addons():
         value = item.get('file')
         name = item.get('name')
         revision = item.get('revision')
-        print("Kart: " + name + " URL: " + value + " Revision: " + revision)
+        print("Kart: " + name + ", URL: " + value + ", Revision: " + revision)
     
     for item in root.findall('track'):
         value = item.get('file')
         name = item.get('name')
         revision = item.get('revision')
-        print("Track: " + name + " URL: " + value + " Revision: " + revision)
+        print("Track: " + name + ", URL: " + value + ", Revision: " + revision)
 
     for item in root.findall('arena'):
         value = item.get('file')
         name = item.get('name')
         revision = item.get('revision')
-        print("Arena: " + name + " URL: " + value + " Revision: " + revision)
+        print("Arena: " + name + ", URL: " + value + ", Revision: " + revision)
 
 def main():
     get_addons()
