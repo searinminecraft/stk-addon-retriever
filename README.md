@@ -5,7 +5,8 @@ This simple utility allows you to get all Addons from the SuperTuxKart Addons AP
 ## Requirements
 You will need the following dependencies:
 * curl
-* pick
+* pv (for progress)
+* pick (install with `python -m pip install pick`)
 * supertuxkart (duh) 
 
 ## How2Use???
