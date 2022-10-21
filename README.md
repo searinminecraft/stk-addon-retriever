@@ -15,6 +15,8 @@ Clone this repo then execute:
 python __main__.py
 ```
 
-## FAQ
-1. Is this a violation the SuperTuxKart terms of service?
-	* As long as you don't do something blatantly stupid (such as ddosing the STKAddons server, you'll be fine.
+# Disclaimer
+
+This tool violates the SuperTuxKart Terms of Service. Because it states in the terms that you are not allowed to use the website or any of it's APIs to get data outside SuperTuxKart.
+
+By using this tool, you agree that you are using this tool at your own risk and risk losing your SuperTuxKart account and possibly get IP banned from using STK. searinminecraft is not responsible for any account deletions or damages.
