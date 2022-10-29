@@ -3,14 +3,19 @@ import sys
 import requests
 import xml.etree.ElementTree as elementtree
 
-from pick import pick
+try:
+    from pick import pick
+except ImportError:
+    print('This script is useless without the dependency \'pick\'. Please install that dependency first before running this script.')
+    sys.exit(1)
 
 stkdir = '$HOME/.local/share/supertuxkart/addons'
 kartsdir = stkdir + '/karts'
 tracksdir = stkdir + '/tracks'
 
-def get_addons():
-    
+
+def get_addons_db():
+
     try:
         print('Please wait while I get addons.xml')
         content = requests.get('https://online.supertuxkart.net/downloads/xml/online_assets.xml')
@@ -21,7 +26,9 @@ def get_addons():
     with open('addons.xml', 'wb') as f:
         f.write(content.content)
 
-def downloadall(choice):
+def getaddons(choice):
+
+    get_addons_db()
 
     element = elementtree.parse('addons.xml')
     root = element.getroot()
@@ -36,7 +43,7 @@ def downloadall(choice):
             print("Kart: " + name + ", URL: " + value + ", Revision: " + revision)
 
             try:
-                os.system('curl -fsSL ' + value + ' -o /tmp/test.zip && unzip -o /tmp/test.zip -d ' + kartsdir + '/' + id + ' && rm /tmp/test.zip')
+                os.system('curl -fsSL ' + value + ' -o /tmp/test.zip  && unzip -o /tmp/test.zip -d ' + kartsdir + '/' + id + ' && rm /tmp/test.zip')
             except:
                 print("ERROR: Failed to download/extract " + name + ".")
 
@@ -49,9 +56,9 @@ def downloadall(choice):
             id = item.get('id')
             name = item.get('name')
             revision = item.get('revision')
-            print("Track: " + name + ", URL: " + value + ", Revision: " + revision)
 
             try:
+                print("Downloading Track: " + name + ", URL: " + value + ", Revision: " + revision)
                 os.system('curl -fsSL ' + value + ' -o /tmp/test.zip && unzip -o /tmp/test.zip -d ' + tracksdir + '/' + id + ' && rm /tmp/test.zip')
             except:
                 print("ERROR: Failed to download/extract " + name + ".")
@@ -72,11 +79,15 @@ def downloadall(choice):
                 print("ERROR: Failed to download/extract " + name + ".")
 
 def main():
+
+    if os.name == 'nt':
+        print('Windows is not supported yet.')
+        sys.exit(1)
     
-    get_addons()
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     choicename = 'What do you want to do?'
-    choices = ['Install EVERYTHING', 'Install Karts', 'Install Tracks', 'Install Arenas', 'Just get all information and exit.', 'Exit']
+    choices = ['Install EVERYTHING', 'Install Karts', 'Install Tracks', 'Install Arenas', 'List Addons', 'Exit']
 
     option, index = pick(choices, choicename)
 
@@ -85,26 +96,27 @@ def main():
     if index == 0:
         choicename = 'This will take a VERY VERY long time. Are you sure you want to do this?'
         choices = ['Yeah', 'Nope!']
-        
+
         option, index = pick(choices, choicename)
 
         if index == 0:
-            downloadall(1)
-            downloadall(2)
-            downloadall(3)
+            getaddons(1)
+            getaddons(2)
+            getaddons(3)
         else:
-            print('Exiting...')
+            main()
 
     elif index == 1:
-        downloadall(1)
+        getaddons(1)
     elif index == 2:
-        downloadall(2)
+        getaddons(2)
     elif index == 3:
-        downloadall(3)
+        getaddons(3)
     elif index == 4:
         print('Function not implemented, yet.')
+        main()
     elif index == 5:
         print('Bye bye!')
-    
+
 if __name__ == '__main__':
     main()
