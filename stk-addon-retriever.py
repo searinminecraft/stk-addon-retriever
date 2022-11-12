@@ -12,11 +12,6 @@ except ImportError:
     print('This script is useless without the dependency \'pick\'. Please install that dependency first before running this script.')
     sys.exit(1)
 
-stkdir = '/home/'+os.environ.get('USER')+'/.local/share/supertuxkart/addons'
-
-kartsdir = stkdir + '/karts'
-tracksdir = stkdir + '/tracks'
-
 
 # "borrowed" some code from ultimate stk launcher
 
@@ -82,7 +77,7 @@ def getaddons(choice):
                 request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
 
                 if os.name == 'posix': # linux
-                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', kartsdir + '/' + id)
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', '/home/' + os.environ.get('USER') + '/.local/share/supertuxkart/addons/karts/' + id)
                     os.system('rm ' + os.getcwd() + '/' + id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\karts\\' + id)
@@ -107,7 +102,7 @@ def getaddons(choice):
                 request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
 
                 if os.name == 'posix': # linux
-                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
+                    shutil.unpack_archive(os.getcwd() + '/home/' + os.environ.get('USER') + '/.local/share/supertuxkart/addons/tracks/' + id)
                     os.system('rm ' + os.getcwd() + '/' + id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
@@ -132,7 +127,7 @@ def getaddons(choice):
                 request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
 
                 if os.name == 'posix': # linux
-                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
+                    shutil.unpack_archive(os.getcwd() + '/home/' + os.environ.get('USER') + '/.local/share/supertuxkart/addons/tracks/' + id)
                     os.system('rm ' + os.getcwd() + '/' + id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
