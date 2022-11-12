@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import shutil
 import sys
-from urllib import request
 import xml.etree.ElementTree as elementtree
+from urllib import request
 
 try:
     from pick import pick
@@ -11,9 +12,11 @@ except ImportError:
     print('This script is useless without the dependency \'pick\'. Please install that dependency first before running this script.')
     sys.exit(1)
 
-stkdir = '$HOME/.local/share/supertuxkart/addons'
+stkdir = '/home/'+os.environ.get('USER')+'/.local/share/supertuxkart/addons'
+
 kartsdir = stkdir + '/karts'
 tracksdir = stkdir + '/tracks'
+
 
 # "borrowed" some code from ultimate stk launcher
 
@@ -36,16 +39,16 @@ stkaddons = 'https://online.supertuxkart.net/downloads/xml/online_assets.xml'
 def log(text, level):
     # info
     if level == 0:
-        print(color.BOLD + color.BLUE + "[" + color.GREEN + " info " + color.BLUE + "]" + color.END + "    " + text + color.END)
+        print(color.BOLD + "       " + text + color.END)
     # error
     elif level == 1:
-        print(color.BOLD + color.BLUE + "[" + color.RED + "  !!  " + color.BLUE + "]" + color.END + "    " + text + color.END)
+        print(color.BOLD + color.BLUE + "[" + color.RED + " !! " + color.BLUE + "]" + color.END + " " + text + color.END)
     # success
     elif level == 2:
-        print(color.BOLD + color.BLUE + "[" + color.GREEN + "  ok  " + color.BLUE + "]" + color.END + "    " + text + color.END)
+        print(color.BOLD + color.BLUE + "[" + color.GREEN + " ok " + color.BLUE + "]" + color.END + " " + text + color.END)
     # warning
     elif level == 3:
-       print(color.BOLD + color.BLUE + "[" + color.YELLOW + " warn " + color.BLUE + "]" + color.END + "    " + text + color.END)
+       print(color.BOLD + color.BLUE + "[" + color.YELLOW + " !! " + color.BLUE + "]" + color.END + " " + text + color.END)
 
 def get_addons_db():
     
@@ -76,9 +79,15 @@ def getaddons(choice):
             try:
                 log("Downloading Kart " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
-                request.urlretrieve(url, '/tmp/' + id + '.zip')
-                os.system('unzip -o /tmp/'+id+'.zip -d ' + kartsdir)
-                os.system('rm -f /tmp/'+id+'.zip')
+                request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
+
+                if os.name == 'posix': # linux
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', kartsdir + '/' + id)
+                    os.system('rm ' + os.getcwd() + '/' + id + '.zip')
+                else: # windows
+                    shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\karts\\' + id)
+                    os.system('del ' + os.getcwd() + '\\' + id + '.zip')
+
             except:
                 log("Failed to download " + "\"" + name + "\" (Revision " + revision + ")", 1)
             else:
@@ -95,9 +104,15 @@ def getaddons(choice):
             try:
                 log("Downloading Track " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
-                request.urlretrieve(url, '/tmp/' + id + '.zip')
-                os.system('unzip -o /tmp/'+id+'.zip -d ' + kartsdir)
-                os.system('rm -f /tmp/'+id+'.zip')
+                request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
+
+                if os.name == 'posix': # linux
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
+                    os.system('rm ' + os.getcwd() + '/' + id + '.zip')
+                else: # windows
+                    shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
+                    os.system('del ' + os.getcwd() + '\\' + id + '.zip')
+
             except:
                 log("Failed to download " + "\"" + name + "\" (Revision " + revision + ")", 1)
             else:
@@ -114,26 +129,21 @@ def getaddons(choice):
             try:
                 log("Downloading Arena " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
-                request.urlretrieve(url, '/tmp/' + id + '.zip')
-                os.system('unzip -o /tmp/'+id+'.zip -d ' + kartsdir)
-                os.system('rm -f /tmp/'+id+'.zip')
+                request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
+
+                if os.name == 'posix': # linux
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
+                    os.system('rm ' + os.getcwd() + '/' + id + '.zip')
+                else: # windows
+                    shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
+                    os.system('del ' + os.getcwd() + '\\' + id + '.zip')
+
             except:
                 log("Failed to download " + "\"" + name + "\" (Revision " + revision + ")", 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
 def main():
-
-    """
-    Windows users, if you see this, Windows is not supported yet.
-    You can remove the Windows check below if you want to. However,
-    this script will most likely be broken or will not work at all
-    on Windows.
-    """
-
-    if os.name == 'nt':
-        print('Windows is not supported yet.')
-        sys.exit(1)
     
     os.system('cls' if os.name == 'nt' else 'clear')
 

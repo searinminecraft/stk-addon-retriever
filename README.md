@@ -14,7 +14,7 @@ Clone this repository then execute:
 python3 stk-addon-retriever.py
 ```
 or
-```
+```sh
 chmod +x stk-addon-retriever.py   # you only have to do this once
 ./stk-addon-retriever.py
 ```
