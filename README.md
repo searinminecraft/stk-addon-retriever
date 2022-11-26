@@ -5,15 +5,16 @@ This simple utility allows you to get all Addons from the SuperTuxKart Addons AP
 ## Requirements
 You will need the following dependencies:
 * pick (install with `python3 -m pip install pick`)
+* requests (install with `python3 -m pip install requests`)
 * supertuxkart (duh) 
 
 ## How2Use???
 
-Clone this repository then execute:
+For both Windows and Linux, clone this repository, then execute:
 ```
 python3 stk-addon-retriever.py
 ```
-or
+or (Linux only)
 ```sh
 chmod +x stk-addon-retriever.py   # you only have to do this once
 ./stk-addon-retriever.py
