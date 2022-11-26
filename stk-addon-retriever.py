@@ -4,7 +4,7 @@ import os
 import shutil
 import sys
 import xml.etree.ElementTree as elementtree
-from urllib import request
+import requests
 
 try:
     from pick import pick
@@ -34,6 +34,15 @@ class color:
 
 stkaddons = 'https://online.supertuxkart.net/downloads/xml/online_assets.xml'
 
+'''
+In here is the SuperTuxKart User Agent. This is important to spoof so that we won't show up as
+'python-requests/(whatever version)' in their internal server logs.
+'''
+
+headers = {'user-agent': 'SuperTuxKart/1.4 (Linux)'} if os.name == 'posix' else {'user-agent': 'SuperTuxKart/1.4 (Windows)'}
+
+print(headers)
+
 # openrc inspired log
 
 def log(text, level):
@@ -55,9 +64,15 @@ def get_addons_db():
     try:
         log("Retrieving addons.xml from SuperTuxKart servers.", 0)
         
-        request.urlretrieve(stkaddons, os.getcwd() + '/addons.xml')
+        content = requests.get('https://online.supertuxkart.net/dl/xml/online_assets.xml', headers=headers)
+
+        with open('addons.xml', 'wb') as file:
+            file.write(content.content)
+    except requests.exceptions.ConnectionError as e:
+       log("Could not get addons.xml: " + str(e), 1)
+       sys.exit(1)
     except:
-       log("Could not get addons.xml. Quitting.", 1) 
+        log("Could not get addons.xml because an error occured.")
     else:
         log("Successfully retrieved addons.xml.",2)
 
@@ -79,17 +94,22 @@ def getaddons(choice):
             try:
                 log("Downloading Kart " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
-                request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
+                content = requests.get(url , headers=headers)
+
+                with open(id+'.zip', 'wb') as file:
+                    file.write(content.content)
 
                 if os.name == 'posix': # linux
                     shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', kartsdir + '/' + id)
-                    os.system('rm ' + os.getcwd() + '/' + id + '.zip')
+                    os.remove(id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\karts\\' + id)
-                    os.system('del ' + os.getcwd() + '\\' + id + '.zip')
+                    os.remove(id + '.zip')
 
+            except requests.exceptions.ConnectionError as e:
+                log("Failed to download " + "\"" + name + "\" (Revision " + revision + "): " + str(e), 1)
             except:
-                log("Failed to download " + "\"" + name + "\" (Revision " + revision + ")", 1)
+                log("An unexpected error has occured while downloading \"" + name + "\"" + " (Revision: " + revision + ").", 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
@@ -104,17 +124,22 @@ def getaddons(choice):
             try:
                 log("Downloading Track " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
-                request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
+                content = requests.get(url , headers=headers)
+
+                with open(id+'.zip', 'wb') as file:
+                    file.write(content.content)
 
                 if os.name == 'posix': # linux
                     shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
-                    os.system('rm ' + os.getcwd() + '/' + id + '.zip')
+                    os.remove(id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
-                    os.system('del ' + os.getcwd() + '\\' + id + '.zip')
+                    os.remove(id + '.zip')
 
+            except requests.exceptions.ConnectionError as e:
+                log("Failed to download " + "\"" + name + "\" (Revision " + revision + "): " + str(e), 1)
             except:
-                log("Failed to download " + "\"" + name + "\" (Revision " + revision + ")", 1)
+                log("An unexpected error has occured while downloading \"" + name + "\"" + " (Revision: " + revision + ").", 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
@@ -129,17 +154,22 @@ def getaddons(choice):
             try:
                 log("Downloading Arena " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
-                request.urlretrieve(url, os.getcwd() + '/' + id + '.zip')
+                content = requests.get(url , headers=headers)
+
+                with open(id+'.zip', 'wb') as file:
+                    file.write(content.content)
 
                 if os.name == 'posix': # linux
                     shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
-                    os.system('rm ' + os.getcwd() + '/' + id + '.zip')
+                    os.remove(id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
-                    os.system('del ' + os.getcwd() + '\\' + id + '.zip')
+                    os.remove(id + '.zip')
 
+            except requests.exceptions.ConnectionError as e:
+                log("Failed to download " + "\"" + name + "\" (Revision " + revision + "): " + str(e), 1)
             except:
-                log("Failed to download " + "\"" + name + "\" (Revision " + revision + ")", 1)
+                log("An unexpected error has occured while downloading \"" + name + "\"" + " (Revision: " + revision + ").", 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
@@ -180,6 +210,7 @@ def main():
         main()
     elif index == 5:
         print('Bye bye!')
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
