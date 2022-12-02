@@ -4,19 +4,17 @@ import os
 import shutil
 import sys
 import xml.etree.ElementTree as elementtree
-import requests
 
 try:
     from pick import pick
+    import requests
 except ImportError:
-    print('This script is useless without the dependency \'pick\'. Please install that dependency first before running this script.')
+    print('Some dependencies are missing. Please install the mentioned dependencies from the README to continue.')
     sys.exit(1)
 
-stkdir = '/home/'+os.environ.get('USER')+'/.local/share/supertuxkart/addons'
 
-kartsdir = stkdir + '/karts'
-tracksdir = stkdir + '/tracks'
 
+version = '1.3'
 
 # "borrowed" some code from ultimate stk launcher
 
@@ -34,21 +32,14 @@ class color:
 
 stkaddons = 'https://online.supertuxkart.net/downloads/xml/online_assets.xml'
 
-'''
-In here is the SuperTuxKart User Agent. This is important to spoof so that we won't show up as
-'python-requests/(whatever version)' in their internal server logs.
-'''
-
-headers = {'user-agent': 'SuperTuxKart/1.4 (Linux)'} if os.name == 'posix' else {'user-agent': 'SuperTuxKart/1.4 (Windows)'}
-
-print(headers)
+headers = {'user-agent': 'Mozilla/5.0 (compatible; STKAddonRetriever/' + version + '; https://github.com/searinminecraft/stk-addon-retrievrer'}
 
 # openrc inspired log
 
-def log(text, level):
+def log(text: str, level: int):
     # info
     if level == 0:
-        print(color.BOLD + "       " + text + color.END)
+        print("       " + text + color.END)
     # error
     elif level == 1:
         print(color.BOLD + color.BLUE + "[" + color.RED + " !! " + color.BLUE + "]" + color.END + " " + text + color.END)
@@ -60,19 +51,23 @@ def log(text, level):
        print(color.BOLD + color.BLUE + "[" + color.YELLOW + " !! " + color.BLUE + "]" + color.END + " " + text + color.END)
 
 def get_addons_db():
-    
+
     try:
         log("Retrieving addons.xml from SuperTuxKart servers.", 0)
         
-        content = requests.get('https://online.supertuxkart.net/dl/xml/online_assets.xml', headers=headers)
+        content = requests.get(stkaddons, headers=headers)
 
         with open('addons.xml', 'wb') as file:
             file.write(content.content)
     except requests.exceptions.ConnectionError as e:
-       log("Could not get addons.xml: " + str(e), 1)
+       log("Could not retrieve addons.xml: Can't connect to " + stkaddons + ".\n\nDetailed information:\n\nException: " + str(type(e)) + "\n\nMessage: "  + str(e) + "\n", 1)
        sys.exit(1)
-    except:
-        log("Could not get addons.xml because an error occured.")
+    except Exception as e:
+        log("An error occured while retrieving addons.xml.\n\nDetailed information:\n\nException: " + str(type(e)) + "\n\nMessage: " + str(e), 1)
+        sys.exit("1")
+    except KeyboardInterrupt:
+        log("Interrupt signal recieved.", 1)
+        sys.exit(1)
     else:
         log("Successfully retrieved addons.xml.",2)
 
@@ -94,13 +89,28 @@ def getaddons(choice):
             try:
                 log("Downloading Kart " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
+                try:
+                    if os.name == 'posix':
+                        os.chdir(os.path.expanduser('~') + '/.local/share/supertuxkart/addons/karts/' + id)
+                    else:
+                        os.chdir('C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\karts')
+                
+                    ident = elementtree.parse('kart.xml')
+                    ver = ident.getroot().get('revision')
+
+                    if int(ver) >= int(revision):
+                        raise TypeError(id + ' already exists or already in latest version!!' + ' Current Revision: ' + ver + ', New Revision: ' + revision)
+                
+                except FileNotFoundError:
+                    pass
+
                 content = requests.get(url , headers=headers)
 
                 with open(id+'.zip', 'wb') as file:
                     file.write(content.content)
 
                 if os.name == 'posix': # linux
-                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', kartsdir + '/' + id)
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', os.path.expanduser('~') + '/.local/share/supertuxkart/addons/karts/' + id)
                     os.remove(id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\karts\\' + id)
@@ -108,8 +118,13 @@ def getaddons(choice):
 
             except requests.exceptions.ConnectionError as e:
                 log("Failed to download " + "\"" + name + "\" (Revision " + revision + "): " + str(e), 1)
-            except:
-                log("An unexpected error has occured while downloading \"" + name + "\"" + " (Revision: " + revision + ").", 1)
+            except KeyboardInterrupt:
+                log("Interrupt signal recieved.", 1)
+                sys.exit(1)
+            except TypeError as e:
+                log(str(e), 1)
+            except Exception as e:
+                log("An unexpected error has occured: " + str(e), 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
@@ -121,8 +136,26 @@ def getaddons(choice):
             name = track.get('name')
             revision = track.get('revision')
 
+            
+
             try:
+
                 log("Downloading Track " + "\"" + name + "\". (Revision " + revision + ")", 0)
+
+                try:
+                    if os.name == 'posix':
+                        os.chdir(os.path.expanduser('~') + '/.local/share/supertuxkart/addons/tracks/' + id)
+                    else:
+                        os.chdir('C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks')
+                
+                    ident = elementtree.parse('track.xml')
+                    ver = ident.getroot().get('revision')
+
+                    if int(ver) >= int(revision):
+                        raise TypeError(id + ' already exists or already in latest version!!' + ' Current Revision: ' + ver + ', New Revision: ' + revision)
+                
+                except FileNotFoundError:
+                    pass
 
                 content = requests.get(url , headers=headers)
 
@@ -130,7 +163,7 @@ def getaddons(choice):
                     file.write(content.content)
 
                 if os.name == 'posix': # linux
-                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', os.path.expanduser('~') + '/.local/share/supertuxkart/addons/tracks/' + id)
                     os.remove(id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
@@ -138,8 +171,13 @@ def getaddons(choice):
 
             except requests.exceptions.ConnectionError as e:
                 log("Failed to download " + "\"" + name + "\" (Revision " + revision + "): " + str(e), 1)
-            except:
-                log("An unexpected error has occured while downloading \"" + name + "\"" + " (Revision: " + revision + ").", 1)
+            except KeyboardInterrupt:
+                log("Interrupt signal recieved.", 1)
+                sys.exit(1)
+            except TypeError as e:
+                log(str(e), 1)
+            except Exception as e:
+                log("An unexpected error has occured: " + str(e), 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
@@ -154,13 +192,28 @@ def getaddons(choice):
             try:
                 log("Downloading Arena " + "\"" + name + "\". (Revision " + revision + ")", 0)
 
+                try:
+                    if os.name == 'posix':
+                        os.chdir(os.path.expanduser('~') + '/.local/share/supertuxkart/addons/tracks/' + id)
+                    else:
+                        os.chdir('C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks')
+                
+                    ident = elementtree.parse('track.xml')
+                    ver = ident.getroot().get('revision')
+
+                    if int(ver) >= int(revision):
+                        raise TypeError(id + ' already exists or already in latest version!!' + ' Current Revision: ' + ver + ', New Revision: ' + revision)
+                
+                except FileNotFoundError:
+                    pass
+
                 content = requests.get(url , headers=headers)
 
                 with open(id+'.zip', 'wb') as file:
                     file.write(content.content)
 
                 if os.name == 'posix': # linux
-                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', tracksdir + '/' + id)
+                    shutil.unpack_archive(os.getcwd() + '/' + id + '.zip', os.path.expanduser('~') + '/.local/share/supertuxkart/addons/tracks/' + id)
                     os.remove(id + '.zip')
                 else: # windows
                     shutil.unpack_archive(os.getcwd() + '\\' + id + '.zip', 'C:\\Users\\' + os.environ.get('USERNAME') + '\\AppData\\Roaming\\supertuxkart\\addons\\tracks\\' + id)
@@ -168,24 +221,27 @@ def getaddons(choice):
 
             except requests.exceptions.ConnectionError as e:
                 log("Failed to download " + "\"" + name + "\" (Revision " + revision + "): " + str(e), 1)
-            except:
-                log("An unexpected error has occured while downloading \"" + name + "\"" + " (Revision: " + revision + ").", 1)
+            except KeyboardInterrupt:
+                log("Interrupt signal recieved.", 1)
+                sys.exit(1)
+            except TypeError as e:
+                log(str(e), 1)
+            except Exception as e:
+                log("An unexpected error has occured: " + str(e), 1)
             else:
                 log("Succssfully downloaded " + "\"" + name + "\"", 2)
 
 def main():
     
     os.system('cls' if os.name == 'nt' else 'clear')
-
-    choicename = 'What do you want to do?'
-    choices = ['Install EVERYTHING', 'Install Karts', 'Install Tracks', 'Install Arenas', 'List Addons', 'Exit']
+    
+    choicename = 'What do you want to do today?'
+    choices = ['Install/Update EVERYTHING', 'Install/Update Karts', 'Install/Update Tracks', 'Install/Update Arenas', 'List Addons', 'Exit']
 
     option, index = pick(choices, choicename)
 
-    print('')
-
     if index == 0:
-        choicename = 'Warning: This will take a VERY VERY long time. Are you sure you want to do this?'
+        choicename = 'Warning: This will take a VERY VERY long time (depending on your internet connection). Are you sure you want to do this?'
         choices = ['Yeah', 'Nope!']
 
         option, index = pick(choices, choicename)
@@ -213,4 +269,10 @@ def main():
         sys.exit(0)
 
 if __name__ == '__main__':
+    try:
+        import setproctitle
+        setproctitle.setproctitle('STK Addon Retiever ' + version)
+    except ImportError:
+        pass
+
     main()
